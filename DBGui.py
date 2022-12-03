@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 import sqlite3
+from sqlite3 import Error
 
 # Set the gui title and window
 root = Tk()
@@ -33,7 +34,11 @@ def set_tabs():
 
 def start_connection():
     #Setting the connection to the db file "carRental.db"
-    conn = sqlite3.connect("carRental.db")
+    #try except to indicate error has occured when connecting
+    try:
+        conn = sqlite3.connect("carRental.db")
+    except Error as error:
+        print(error)
 
     #Cursor to grab the information we need and create our DB
     cur = conn.cursor()
