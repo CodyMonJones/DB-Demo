@@ -3,7 +3,6 @@ from tkinter import ttk
 import sqlite3
 
 # Set the gui title and window
-
 root = Tk()
 root.title("Car Rental GUI")
 root.geometry("400x400")
@@ -25,7 +24,7 @@ def set_tabs():
     tab_window.add(vehicle_tab,  text='Vehicles')
     tab_window.pack(expand= 1, fill="both")
 
-    #setting the tabs
+    #setting the tabs to the root window so they show when program runs
     ttk.Label(customer_tab, text = "customer tab").grid(column = 0, row = 0, padx = 30, pady = 30)
     ttk.Label(rate_tab, text = "rate tab").grid(column = 0, row = 0, padx = 30, pady = 30)
     ttk.Label(rental_tab, text = "rental tab").grid(column = 0, row = 0, padx = 30, pady = 30)
