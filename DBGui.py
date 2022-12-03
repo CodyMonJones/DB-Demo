@@ -13,24 +13,17 @@ tab_window = ttk.Notebook(root)
 
 def set_tabs():
     # Setting a tab frame for each CSV file for basic command testing
-    customer_tab = ttk.Frame(tab_window)
-    rate_tab     = ttk.Frame(tab_window)
-    rental_tab   = ttk.Frame(tab_window)
-    vehicle_tab  = ttk.Frame(tab_window)    
+    query_tab1 = ttk.Frame(tab_window)
+    query_tab2 = ttk.Frame(tab_window)
+    query_tab3 = ttk.Frame(tab_window)
+    query_tab4 = ttk.Frame(tab_window)    
 
     # Adding the tabs to the GUI window
-    tab_window.add(customer_tab, text='Customers')
-    tab_window.add(rate_tab,     text='Rates')
-    tab_window.add(rental_tab,   text='Rentals')
-    tab_window.add(vehicle_tab,  text='Vehicles')
+    tab_window.add(query_tab1, text='Query 1')
+    tab_window.add(query_tab2, text='Query 2')
+    tab_window.add(query_tab3, text='Query 3')
+    tab_window.add(query_tab4, text='Query 4')
     tab_window.pack(expand= 1, fill="both")
-
-    #setting the tabs to the root window so they show when program runs
-    ttk.Label(customer_tab, text = "customer tab").grid(column = 0, row = 0, padx = 30, pady = 30)
-    ttk.Label(rate_tab, text = "rate tab").grid(column = 0, row = 0, padx = 30, pady = 30)
-    ttk.Label(rental_tab, text = "rental tab").grid(column = 0, row = 0, padx = 30, pady = 30)
-    ttk.Label(vehicle_tab, text = "vehicle tab").grid(column = 0, row = 0, padx = 30, pady = 30)
-
 
 def start_connection():
     #Setting the connection to the db file "carRental.db"
