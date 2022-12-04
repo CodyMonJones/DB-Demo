@@ -26,7 +26,7 @@ tab_window.pack(expand=1, fill="both")
 
 #Tree view for displaying data
 tree_view2 = ttk.Treeview(query_tab2, selectmode='browse')
-tree_view2.grid(row=7, column=1, padx=20, pady=20)
+tree_view2.grid(row=6, column=1, padx=20, pady=20)
 tree_view2["columns"] = ("1", "2", "3", "4", "5")
 tree_view2["show"] = 'headings'
 tree_view2.column("1", width=200, anchor='c')
@@ -58,6 +58,13 @@ def submit_vehicle():
                     'type': carType.get(),
                     'category': category.get()
                 })
+    tree_view2.insert("", index='end', iid=vehicle_count, text="", values=(vid.get(), description.get(), year.get(), carType.get(), category.get()))
+    #clears boxes once input is complete            
+    vid.delete(0, END)
+    description.delete(0, END)
+    year.delete(0, END)
+    carType.delete(0, END)
+    category.delete(0, END)
 
     conn.commit()
     conn.close()
@@ -72,8 +79,11 @@ def show_vehicles():
     cur = conn.cursor()
     vehicle_records = cur.execute("SELECT * FROM VEHICLE")
 
+    global vehicle_count
+    vehicle_count = 0
     for vehicle in vehicle_records:
-            tree_view2.insert("", index='end', iid=vehicle[0], text=vehicle[0], values=(vehicle[0], vehicle[1], vehicle[2], vehicle[3], vehicle[4]))   
+            tree_view2.insert("", index='end', iid=vehicle_count, text=vehicle[0], values=(vehicle[0], vehicle[1], vehicle[2], vehicle[3], vehicle[4])) 
+            vehicle_count += 1  
 
     conn.commit()
     conn.close()
@@ -117,8 +127,6 @@ category.grid(row=4, column=1)
 enterVehicle = Button(query_tab2, text="Submit car", command=submit_vehicle)
 enterVehicle.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
 
-vehicle_table_view = Button(query_tab2, text="Display Vehicles", command=show_vehicles)
-vehicle_table_view.grid(row=6, column=1, columnspan=1, padx=10, pady=10)
 
 
 def start_connection():
@@ -132,5 +140,6 @@ def start_connection():
 
 # Execute our window
 
+show_vehicles()
 start_connection()
 root.mainloop()
