@@ -7,6 +7,7 @@ from sqlite3 import Error
 root = Tk()
 root.title("Car Rental GUI")
 root.geometry("1000x1000")
+workingDB = "carRental.db"
 
 # Tabbed window for different options
 tab_window = ttk.Notebook(root)
@@ -45,7 +46,7 @@ tree_view2.heading("5", text="Category")
 #setting treeview columns
 def submit_vehicle():
     try:
-        conn = sqlite3.connect("carRental.db")
+        conn = sqlite3.connect(workingDB)
     except Error as error:
         print(error)
 
@@ -72,7 +73,7 @@ def submit_vehicle():
 
 def show_vehicles():
     try:
-        conn = sqlite3.connect("carRental.db")
+        conn = sqlite3.connect(workingDB)
     except Error as error:
         print(error)
 
@@ -133,7 +134,7 @@ def start_connection():
     # Setting the connection to the db file "carRental.db"
     # try except to indicate error has occured when connecting
     try:
-        sqlite3.connect("carRental.db")
+        sqlite3.connect(workingDB)
     except Error as error:
         print(error)
 
