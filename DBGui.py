@@ -25,16 +25,30 @@ tab_window.add(query_tab3, text='Query 3')
 tab_window.add(query_tab4, text='Query 4')
 tab_window.pack(expand=1, fill="both")
 
-#Tree view for displaying data
+#Tree view for displaying customer data
+tree_view1 = ttk.Treeview(query_tab1, selectmode='browse')
+tree_view1.grid(row=5, column=1, padx=20, pady=20)
+tree_view1["columns"] = ("1", "2", "3")
+tree_view1["show"] = 'headings'
+tree_view1.column("1", width=100, anchor='w')
+tree_view1.column("2", width=100, anchor='w')
+tree_view1.column("3", width=200, anchor='w')
+
+#Treeview headings for customer
+tree_view1.heading("1", text="Customer ID")
+tree_view1.heading("2", text="Name")
+tree_view1.heading("3", text="Phone Number")
+
+#Tree view for displaying vehicle data
 tree_view2 = ttk.Treeview(query_tab2, selectmode='browse')
 tree_view2.grid(row=6, column=1, padx=20, pady=20)
 tree_view2["columns"] = ("1", "2", "3", "4", "5")
 tree_view2["show"] = 'headings'
-tree_view2.column("1", width=200, anchor='center')
-tree_view2.column("2", width=100, anchor='center')
-tree_view2.column("3", width=100, anchor='center')
-tree_view2.column("4", width=100, anchor='center')
-tree_view2.column("5", width=100, anchor='center')
+tree_view2.column("1", width=200, anchor='w')
+tree_view2.column("2", width=200, anchor='w')
+tree_view2.column("3", width=100, anchor='w')
+tree_view2.column("4", width=100, anchor='w')
+tree_view2.column("5", width=100, anchor='w')
 
 #treeview headings
 tree_view2.heading("1", text="Vehicle ID")
@@ -70,8 +84,26 @@ def submit_vehicle():
     conn.commit()
     conn.close()
 
+def show_customer_data():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
 
-def show_vehicles():
+    cur = conn.cursor()
+    customer_records = cur.execute("SELECT * FROM CUSTOMER")
+
+    global customer_count
+    customer_count = 0
+    for customer in customer_records:
+        tree_view1.insert("", index='end', iid=customer_count, text=customer[0], values=(
+            customer[0], customer[1], customer[2]))
+        customer_count += 1
+
+    conn.commit()
+    conn.close()
+
+def show_vehicle_data():
     try:
         conn = sqlite3.connect(workingDB)
     except Error as error:
@@ -128,7 +160,18 @@ category.grid(row=4, column=1)
 enterVehicle = Button(query_tab2, text="Submit car", command=submit_vehicle)
 enterVehicle.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
 
+#Customer Tab
+cust_name_label = Label(query_tab1, text='Name: ')
+cust_name_label.grid(row=0, column=0, sticky=W)
 
+customer_name = Entry(query_tab1, width=30)
+customer_name.grid(row=1, column=0, pady=(0,10))
+
+cust_phone_label = Label(query_tab1, text='Phone Number: ')
+cust_phone_label.grid(row=2, column=0, sticky=W)
+
+customer_phone = Entry(query_tab1, width=30)
+customer_phone.grid(row=3, column=0)
 
 def start_connection():
     # Setting the connection to the db file "carRental.db"
@@ -140,7 +183,7 @@ def start_connection():
 
 
 # Execute our window
-
-show_vehicles()
+show_customer_data()
+show_vehicle_data()
 start_connection()
 root.mainloop()
