@@ -84,6 +84,25 @@ def submit_vehicle():
     conn.commit()
     conn.close()
 
+def add_customer():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+    cur.execute("INSERT INTO CUSTOMER VALUES (:custID, :name, :phone)",
+                {   
+                    'custID': None,
+                    'name': customer_name.get(),
+                    'phone': customer_phone.get()
+                })
+    tree_view1.insert("", index='end', iid=customer_count, text="", values=(customer_count, customer_name.get(), customer_phone.get()))
+    customer_name.delete(0, END)
+    customer_phone.delete(0,END)
+
+    conn.commit()
+    conn.close()
 def show_customer_data():
     try:
         conn = sqlite3.connect(workingDB)
@@ -94,10 +113,9 @@ def show_customer_data():
     customer_records = cur.execute("SELECT * FROM CUSTOMER")
 
     global customer_count
-    customer_count = 0
+    customer_count = 201
     for customer in customer_records:
-        tree_view1.insert("", index='end', iid=customer_count, text=customer[0], values=(
-            customer[0], customer[1], customer[2]))
+        tree_view1.insert("", index='end', iid=customer_count, text=customer[0], values=(customer[0], customer[1], customer[2]))
         customer_count += 1
 
     conn.commit()
@@ -171,7 +189,10 @@ cust_phone_label = Label(query_tab1, text='Phone Number: ')
 cust_phone_label.grid(row=2, column=0, sticky=W)
 
 customer_phone = Entry(query_tab1, width=30)
-customer_phone.grid(row=3, column=0)
+customer_phone.grid(row=3, column=0, pady=(0,10))
+
+enter_customer = Button(query_tab1, text="Add Customer", command=add_customer)
+enter_customer.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky=W)
 
 def start_connection():
     # Setting the connection to the db file "carRental.db"
