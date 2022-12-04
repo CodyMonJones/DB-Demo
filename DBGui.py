@@ -29,11 +29,11 @@ tree_view2 = ttk.Treeview(query_tab2, selectmode='browse')
 tree_view2.grid(row=6, column=1, padx=20, pady=20)
 tree_view2["columns"] = ("1", "2", "3", "4", "5")
 tree_view2["show"] = 'headings'
-tree_view2.column("1", width=200, anchor='c')
-tree_view2.column("2", width=100, anchor='c')
-tree_view2.column("3", width=100, anchor='c')
-tree_view2.column("4", width=100, anchor='c')
-tree_view2.column("5", width=100, anchor='c')
+tree_view2.column("1", width=200, anchor='center')
+tree_view2.column("2", width=100, anchor='center')
+tree_view2.column("3", width=100, anchor='center')
+tree_view2.column("4", width=100, anchor='center')
+tree_view2.column("5", width=100, anchor='center')
 
 #treeview headings
 tree_view2.heading("1", text="Vehicle ID")
