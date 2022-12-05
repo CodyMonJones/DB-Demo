@@ -103,9 +103,8 @@ def add_customer():
         print(error)
 
     cur = conn.cursor()
-    cur.execute("INSERT INTO CUSTOMER VALUES (:custID, :name, :phone)",
+    cur.execute("INSERT INTO CUSTOMER(name, phone) VALUES (:name, :phone)",
                 {   
-                    'custID': None,
                     'name': customer_name.get(),
                     'phone': customer_phone.get()
                 })
@@ -193,7 +192,7 @@ category.grid(row=9, column=0, sticky=W, pady=(0, 10))
 enterVehicle = Button(query_tab2, text="Submit car", command=submit_vehicle)
 enterVehicle.grid(row=10, column=0, columnspan=2, padx=100, pady=10, sticky=W)
 
-#Customer Tab
+#Adding Customer Tab
 cust_name_label = Label(query_tab1, text='Name: ')
 cust_name_label.grid(row=0, column=0, sticky=W)
 
@@ -212,18 +211,7 @@ customer_phone.insert(0, "(000) 000-0000")
 enter_customer = Button(query_tab1, text="Add Customer", command=add_customer)
 enter_customer.grid(row=4, column=0, columnspan=2, padx=100, pady=10, sticky=W)
 
-
-def start_connection():
-    # Setting the connection to the db file "carRental.db"
-    # try except to indicate error has occured when connecting
-    try:
-        sqlite3.connect(workingDB)
-    except Error as error:
-        print(error)
-
-
 # Execute our window
 show_customer_data()
 show_vehicle_data()
-start_connection()
 root.mainloop()
