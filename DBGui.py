@@ -68,6 +68,34 @@ tree_view2.heading("3", text="Year")
 tree_view2.heading("4", text="Type")
 tree_view2.heading("5", text="Category")
 
+#Rental Treeview
+tree_view4 = ttk.Treeview(query_tab4, selectmode='browse')
+tree_view4.grid(row=14, column=0, padx=20, pady=20)
+tree_view4["columns"] = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+tree_view4["show"] = 'headings'
+tree_view4.column("1", width=70, anchor='w')
+tree_view4.column("2", width=100, anchor='w')
+tree_view4.column("3", width=100, anchor='w')
+tree_view4.column("4", width=100, anchor='w')
+tree_view4.column("5", width=60, anchor='w')
+tree_view4.column("6", width=60, anchor='w')
+tree_view4.column("7", width=100, anchor='w')
+tree_view4.column("8", width=100, anchor='w')
+tree_view4.column("9", width=100, anchor='w')
+tree_view4.column("10",width=60, anchor='w')
+
+
+#treeview headings
+tree_view4.heading("1", text="Customer ID")
+tree_view4.heading("2", text="Vehicle ID")
+tree_view4.heading("3", text="Start Date")
+tree_view4.heading("4", text="Order Date")
+tree_view4.heading("5", text="Rental Type")
+tree_view4.heading("6", text="Quantity")
+tree_view4.heading("7", text="Return Date")
+tree_view4.heading("8", text="Total Amount")
+tree_view4.heading("9", text="Payment Date")
+tree_view4.heading("10", text="Returned")
 
 #setting treeview columns
 def submit_vehicle():
@@ -226,6 +254,13 @@ def pay():
                      'returnDate': return_date.get()
                  })
 
+    conn.commit()
+
+    tree_4_result = conn.execute("SELECT * FROM RENTAL")
+    for rental in tree_4_result:
+        tree_view4.insert("", index="end", text= "", values=(rental[0], rental[1], rental[2], rental[3], rental[4], rental[5], rental[6], rental[7], rental[8], rental[9]))
+    conn.commit()             
+
     customer_name4.delete(0, END)
     customer_phone.delete(0, END)
     return_date.delete(0, END)
@@ -295,14 +330,14 @@ enter_customer = Button(query_tab1, text="Add Customer", command=add_customer)
 enter_customer.grid(row=4, column=0, columnspan=2, padx=100, pady=10, sticky=W)
 
 #QUERY 4 BOXES
-cust_name4_label = Label(query_tab4, text='Name: ')
+cust_name4_label = Label(query_tab4, text='Name:')
 cust_name4_label.grid(row=0, column=0, sticky=W)
 
 customer_name4 = Entry(query_tab4, width=30)
 customer_name4.grid(row=1, column=0, pady=(0, 10))
 
 
-return_date_label = Label(query_tab4, text='Return date (YYYY-MM-DD): ')
+return_date_label = Label(query_tab4, text='Return date (YYYY-MM-DD):')
 return_date_label.grid(row=2, column=0, sticky=W)
 
 return_date = Entry(query_tab4, width=30)
