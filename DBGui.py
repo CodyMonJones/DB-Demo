@@ -208,6 +208,19 @@ tree_view5a.heading("1", text="Customer ID")
 tree_view5a.heading("2", text="Name")
 tree_view5a.heading("3", text="Remaining Balance")
 
+#treeview for 5b
+tree_view5a = ttk.Treeview(query_tab5, selectmode='browse')
+tree_view5a.grid(row=4, column=4, padx=20, pady=20)
+tree_view5a["columns"] = ("1", "2", "3")
+tree_view5a["show"] = 'headings'
+tree_view5a.column("1", width=100, anchor='w')
+tree_view5a.column("2", width=100, anchor='w')
+tree_view5a.column("3", width=200, anchor='w')
+
+tree_view5a.heading("1", text="Customer ID")
+tree_view5a.heading("2", text="Name")
+tree_view5a.heading("3", text="Remaining Balance")
+
 #setting treeview columns
 def submit_vehicle():
     try:
@@ -473,6 +486,82 @@ def cusotmerBalanceSearchID():
     conn.commit()
     conn.close()
 
+
+def vehicleAverage():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+
+    #output = conn.execute('SELECT Vehicle, Average, Average(RentalBalance) AS Balance FROM rentalInfo GROUP BY vehicle ORDER BY Balance ASC')
+
+    #for i in tree_view5b.get_children():
+    #   tree_view5b.delete(i)
+
+    #use for checking output of query
+    #for vehicle_avg in output:
+    #print(vehicle_avg)
+
+    #    tree_view5b.insert("", index='end',text = "", values=( vehicle_avg[0], vehicle_avg[1], f"${vehicle_avg[2]}.00"))
+
+    conn.commit()
+    conn.close()
+
+
+def vehicleAverageSearchName():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+
+    #output = conn.execute('SELECT CustomerID, CustomerName, SUM(RentalBalance) AS Balance FROM rentalInfo WHERE CustomerName = :name ORDER BY Balance ASC',
+    #    {
+    #        'name': search_name.get()
+    #    })
+
+    #for i in tree_view5b.get_children():
+    #    tree_view5b.delete(i)
+
+    #for vehicle_avg in output:
+    #    tree_view5b.insert("", index='end',text = "", values=( vehicle_avg[0], vehicle_avg[1], f"${vehicle_avg[2]}.00"))
+
+    #vehicle_name.delete(0, END)
+
+    conn.commit()
+    conn.close()
+
+
+def vehicleAverageSearchID():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+
+    #output = conn.execute('SELECT CustomerID, CustomerName, SUM(RentalBalance) AS Balance FROM rentalInfo WHERE CustomerID = :id ORDER BY Balance ASC',
+    #    {
+    #        'id': search_id.get()
+    #    })
+
+    #for i in tree_view5b.get_children():
+    #    tree_view5b.delete(i)
+
+    #use for checking output of query
+    #for vehicle_avg in output:
+    #print(vehicle_avg)
+
+    #    tree_view5b.insert("", index='end',text = "", values=( vehicle_avg[0], vehicle_avg[1], f"${vehicle_avg[2]}.00"))
+
+    #search_id.delete(0, END)
+
+    conn.commit()
+    conn.close()
+
 # Vehicle information to add to DB
 # query 2 entry boxes and buttons
 vid_label = Label(query_tab2, text='Vehicle ID: ')
@@ -678,6 +767,35 @@ search_name_button.grid(row=2, column=1, sticky=W, padx=(10, 0))
 generate_customers_balance = Button(
 query_tab5, text='Find Customers', command=customerBalance)
 generate_customers_balance.grid(row=4, column=0, sticky=W)
+
+#5b
+#5b
+
+vehicle_id_label = Label(query_tab5, text='Vehicle ID')
+vehicle_id_label.grid(row=5, column=0, sticky=W, padx=(10, 0))
+
+vehicle_id = Entry(query_tab5, width=30)
+vehicle_id.grid(row=6, column=0, sticky=W, padx=(10, 0))
+
+vehicle_id_button = Button(
+    query_tab5, text='Search by ID', command=vehicleAverageSearchID)
+vehicle_id_button.grid(row=7, column=0, sticky=W, padx=(10, 0))
+
+
+vehicle_name_label = Label(query_tab5, text='Vehicle name:')
+search_name_label.grid(row=5, column=1, sticky=W, padx=(10, 0))
+
+vehicle_name = Entry(query_tab5, width=30)
+vehicle_name.grid(row=6, column=1, padx=(10, 0))
+
+vehicle_name_button = Button(
+    query_tab5, text='Search by Name', command=vehicleAverageSearchName)
+vehicle_name_button.grid(row=7, column=1, sticky=W, padx=(10, 0))
+
+
+generate_vehicle_average = Button(
+    query_tab5, text='Find Vehicle', command=vehicleAverage)
+generate_vehicle_average.grid(row=8, column=0, sticky=W)
 
 # Execute our window
 show_customer_data()
