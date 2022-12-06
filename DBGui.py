@@ -84,6 +84,23 @@ tree_view4.column("8", width=100, anchor='w')
 tree_view4.column("9", width=100, anchor='w')
 tree_view4.column("10",width=60, anchor='w')
 
+#tree_view for showing available cars for Query 3
+tree_view3 = ttk.Treeview(query_tab3, selectmode='browse')
+tree_view3.grid(row=11, column=0, padx=5, pady=20)
+tree_view3["columns"] = ("1", "2", "3", "4", "5")
+tree_view3["show"] = 'headings'
+tree_view3.column("1", width=200, anchor='w')
+tree_view3.column("2", width=200, anchor='w')
+tree_view3.column("3", width=100, anchor='w')
+tree_view3.column("4", width=100, anchor='w')
+tree_view3.column("5", width=100, anchor='w')
+
+#treeview headings for showing available cars for Query 3 
+tree_view3.heading("1", text="Vehicle ID")
+tree_view3.heading("2", text="Description")
+tree_view3.heading("3", text="Year")
+tree_view3.heading("4", text="Weekly")
+tree_view3.heading("5", text="Daily")
 
 #treeview headings
 tree_view4.heading("1", text="Customer ID")
@@ -96,6 +113,88 @@ tree_view4.heading("7", text="Return Date")
 tree_view4.heading("8", text="Total Amount")
 tree_view4.heading("9", text="Payment Date")
 tree_view4.heading("10", text="Returned")
+
+
+startDate = "XXXX-XX-XX"
+endDate = "XXXX-XX-XX"
+type_User_input = 0
+category_User_input = 0
+today = datetime.today().strftime('%Y-%m-%d')
+total_amount = 0
+
+format = '%Y-%m-%d'
+
+def submit_rental_data():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+    rental_records = cur.execute("""
+    SELECT DISTINCT VEHICLE.VehicleID AS VIN, Description, Year, Weekly, Daily
+    FROM VEHICLE, RENTAL, RATE
+    WHERE VEHICLE.VehicleID = RENTAL.VehicleID 
+    AND VEHICLE.Type = :type 
+    AND VEHICLE.Category = :cat 
+    AND RATE.Type = VEHICLE.Type
+    AND RATE.Category = VEHICLE.Category
+    AND VEHICLE.VehicleID - 
+        (SELECT VEHICLE.VehicleID 
+        FROM VEHICLE, RENTAL 
+        WHERE VEHICLE.VehicleID = RENTAL.VehicleID 
+        AND VEHICLE.Type = :type AND VEHICLE.Category = :cat 
+        AND ((StartDate >= :startD and StartDate <= :endD) 
+            OR (ReturnDate <= :endD AND ReturnDate >= :startD) 
+            OR (StartDate <= :startD AND ReturnDate >= :endD ))) 
+    GROUP BY VEHICLE.VehicleID""",
+    {
+        'type'  : type_in.get(),
+        'cat'   : cat_in.get(),
+        'startD': startD.get(),
+        'endD'  : endD.get()
+    })
+    startDate = startD.get()
+    endDate = endD.get()
+    type_User_input = type_in.get()
+    category_User_input = cat_in.get()
+    
+    global car_count
+    car_count = 0
+    for vehicle in rental_records:
+            tree_view3.insert("", index='end', iid=car_count, text=vehicle[0], values=(vehicle[0], vehicle[1], vehicle[2], vehicle[3], vehicle[4])) 
+            car_count += 1
+
+    conn.commit()
+    conn.close()
+
+def add_rental():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+    
+    cur = conn.cursor()
+    weeklyDailyRates = cur.execute("""
+        SELECT Daily, Weekly
+        FROM RATE
+        WHERE Type = :type
+        AND Category = :cat""",
+        {
+            'type'  : type_in.get(),
+            'cat'   : cat_in.get()
+        })
+    singleTuple = weeklyDailyRates.fetchall()[0]
+    if(weekDaily_in.get() == "1"):
+        total_amount = int(singleTuple[0]) * int(quant_in.get()) * int(numDayWeek_in.get())
+    else:
+        total_amount = int(singleTuple[1]) * int(quant_in.get()) * int(numDayWeek_in.get())
+
+    tempNL = ""
+    if (payNL.get() == '1'):
+        tempNL = today
+    else:
+        tempNL = "NULL"
 
 #setting treeview columns
 def submit_vehicle():
@@ -375,6 +474,82 @@ rental_cost_label.grid(row=11, column=0, sticky=W)
 
 rental_cost = Label(query_tab4, text=rentText)
 rental_cost.grid(row=12, column=0, sticky=W)
+
+#-----------------------------------------------------------------------------------------------------------------------
+#Show available cars buttons/labels for Query 3
+#-----------------------------------------------------------------------------------------------------------------------
+Start_Date = Label(query_tab3, text='Start Date: ')
+Start_Date.grid(row=0, column=0, sticky=W)
+
+startD = Entry(query_tab3, width=30)
+startD.grid(row=1, column=0, sticky=W, pady=(0, 10))
+startD.insert(0, "YYYY-MM-DD")
+
+End_Date = Label(query_tab3, text='End Date: ')
+End_Date.grid(row=2, column=0, sticky=W)
+
+endD = Entry(query_tab3, width=30)
+endD.grid(row=3, column=0, sticky=W, pady=(0, 10))
+endD.insert(0, "YYYY-MM-DD")
+
+type_rental = Label(query_tab3, text='Type: ')
+type_rental.grid(row=4, column=0, sticky=W)
+
+type_in = Entry(query_tab3, width=30)
+type_in.grid(row=5, column=0, sticky=W, pady=(0, 10))
+
+Category_rental = Label(query_tab3, text='Category: ')
+Category_rental.grid(row=6, column=0, sticky=W)
+
+cat_in = Entry(query_tab3, width=30)
+cat_in.grid(row=7, column=0, sticky=W, pady=(0, 10))
+
+list_cars = Button(query_tab3, text="Show available cars", command=submit_rental_data)
+list_cars.grid(row=8, column=0, columnspan=2, padx=100, pady=10, sticky=W)
+#-----------------------------------------------------------------------------------------------------------------------
+#Add rental buttons/labels for Query 3
+#-----------------------------------------------------------------------------------------------------------------------
+Vehicle_id = Label(query_tab3, text='Vehicle ID: ')
+Vehicle_id.grid(row=12, column=0, sticky=W, pady=(0, 10))
+
+vid_in = Entry(query_tab3, width=30)
+vid_in.grid(row=13, column=0, sticky=W, pady=(0, 10))
+
+Cust_ID = Label(query_tab3, text='Your Customer ID: ')
+Cust_ID.grid(row=14, column=0, sticky=W, pady=(0, 10))
+
+custID = Entry(query_tab3, width=30)
+custID.grid(row=15, column=0, sticky=W, pady=(0, 10))
+
+Pay_now_later = Label(query_tab3, text='Will you pay now or later? ')
+Pay_now_later.grid(row=16, column=0, sticky=W, pady=(0, 10))
+
+payNL = Entry(query_tab3, width=30)
+payNL.grid(row=17, column=0, sticky=W, pady=(0, 10))
+payNL.insert(0, "0 = Later : 1 = Now")
+
+Quantity = Label(query_tab3, text='Number of Cars you want to rent: ')
+Quantity.grid(row=18, column=0, sticky=W, pady=(0, 10))
+
+quant_in = Entry(query_tab3, width=30)
+quant_in.grid(row=19, column=0, sticky=W, pady=(0, 10))
+
+WeeklyDaily = Label(query_tab3, text='Weekly or Daily rates: ')
+WeeklyDaily.grid(row=20, column=0, sticky=W, pady=(0, 10))
+
+weekDaily_in = Entry(query_tab3, width=30)
+weekDaily_in.grid(row=21, column=0, sticky=W, pady=(0, 10))
+weekDaily_in.insert(0, "1 = Daily, 7 = Weekly")
+
+NumDaysOrWeeks = Label(query_tab3, text='Number of days or weeks')
+NumDaysOrWeeks.grid(row=22, column=0, sticky=W, pady=(0, 10))
+
+numDayWeek_in = Entry(query_tab3, width=30)
+numDayWeek_in.grid(row=23, column=0, sticky=W, pady=(0, 10))
+
+enterRental = Button(query_tab3, text="Submit Rental Request", command=add_rental)
+enterRental.grid(row=24, column=0, columnspan=2, padx=100, pady=10, sticky=W)
+#-----------------------------------------------------------------------------------------------------------------------
 
 # Execute our window
 show_customer_data()
