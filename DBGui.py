@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import sqlite3
 from sqlite3 import Error
+from datetime import datetime
 
 
 # Set the gui title and window
@@ -153,6 +154,88 @@ def show_vehicle_data():
     conn.commit()
     conn.close()
 
+def return_vehicle():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+
+    # TODO: Figure out if we need vid or description, idea is in the select, grab the vid and save it, then pass it through the pay function
+    # result = cur.execute("SELECT TotalAmount FROM customer, rental, vehicle WHERE customer.custid = rental.custid AND vehicle.vehicleid = rental.vehicleid AND Name = :name AND ReturnDate = :returnDate AND Description = :description",
+    #                    {
+    #                       'name': customer_name4.get(),
+    #                        'returnDate': return_date.get(),
+    #                        'description': vehicle_info.get()
+    #                    })
+
+    result = cur.execute("SELECT TotalAmount FROM CUSTOMER, RENTAL, VEHICLE WHERE customer.custid = rental.custid AND vehicle.vehicleid = rental.vehicleid AND Name = :name AND ReturnDate = :returnDate AND rental.VehicleID = :vid",
+                         {
+                             'name': customer_name4.get(),
+                             'returnDate': return_date.get(),
+                             'vid': vehicle_info.get()
+                         })
+
+    # gets the first result from the query, just in case, there are multiple
+    output = -1
+    for i in result:
+        if (output == -1):
+            output = i
+    # if output is still -1, that means there was no output
+    if (output == -1):
+        rental_cost.config(text="Invalid information")
+    else:
+        rental_cost.config(text=output)
+
+        practiceButton = Button(query_tab4, text='Pay', command=pay)
+        practiceButton.grid(row=13, column=0, )
+
+    conn.commit()
+    conn.close()
+
+
+def pay():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+    date = datetime.today().strftime('%Y-%m-%d')
+
+    cid = conn.execute('select custid from customer where name = :name',
+                       {
+                           'name': customer_name4.get()
+                       })
+
+    print(date, vehicle_info.get(), return_date.get())
+    conn.execute('UPDATE RENTAL SET PaymentDate = :date WHERE VehicleID = :vid AND ReturnDate = :returnDate',
+                 {
+                     'date': str(date),
+                     # 'id': id,
+                     'vid': vehicle_info.get(),
+                     'returnDate': return_date.get()
+                 })
+    conn.commit()
+
+    conn.execute('UPDATE RENTAL SET Returned = 1 WHERE VehicleID = :vid AND ReturnDate = :returnDate',
+                 {
+                     # 'id': id,
+                     'vid': vehicle_info.get(),
+                     'returnDate': return_date.get()
+                 })
+
+    customer_name4.delete(0, END)
+    customer_phone.delete(0, END)
+    return_date.delete(0, END)
+    vehicle_info.delete(0, END)
+    vehicle_make.delete(0, END)
+    vehicle_year.delete(0, END)
+
+    conn.commit()
+    conn.close()
+
 
 # Vehicle information to add to DB
 # query 2 entry boxes and buttons
@@ -210,6 +293,53 @@ customer_phone.insert(0, "(000) 000-0000")
 
 enter_customer = Button(query_tab1, text="Add Customer", command=add_customer)
 enter_customer.grid(row=4, column=0, columnspan=2, padx=100, pady=10, sticky=W)
+
+#QUERY 4 BOXES
+cust_name4_label = Label(query_tab4, text='Name: ')
+cust_name4_label.grid(row=0, column=0, sticky=W)
+
+customer_name4 = Entry(query_tab4, width=30)
+customer_name4.grid(row=1, column=0, pady=(0, 10))
+
+
+return_date_label = Label(query_tab4, text='Return date (YYYY-MM-DD): ')
+return_date_label.grid(row=2, column=0, sticky=W)
+
+return_date = Entry(query_tab4, width=30)
+return_date.grid(row=3, column=0, pady=(0, 10))
+
+
+#vehicle_info_label = Label(query_tab4, text='Vehicle name: ')
+vehicle_info_label = Label(query_tab4, text='Vehicle id: ')
+vehicle_info_label.grid(row=4, column=0, sticky=W)
+
+vehicle_info = Entry(query_tab4, width=30)
+vehicle_info.grid(row=5, column=0, pady=(0, 10))
+
+
+vehicle_make_label = Label(query_tab4, text='Make: ')
+vehicle_make_label.grid(row=4, column=1, sticky=W, padx=(10, 0))
+
+vehicle_make = Entry(query_tab4, width=30)
+vehicle_make.grid(row=5, column=1, pady=(0, 10), padx=(10, 0))
+
+vehicle_year_label = Label(query_tab4, text='Year: ')
+vehicle_year_label.grid(row=4, column=2, sticky=W, padx=(10, 0))
+
+vehicle_year = Entry(query_tab4, width=30)
+vehicle_year.grid(row=5, column=2, pady=(0, 10), padx=(10, 0))
+
+
+updateVehicle = Button(query_tab4, text="Return car", command=return_vehicle)
+updateVehicle.grid(row=10, column=0, columnspan=2, padx=100, pady=10, sticky=W)
+
+
+rentText = ""
+rental_cost_label = Label(query_tab4, text='Rental cost: ')
+rental_cost_label.grid(row=11, column=0, sticky=W)
+
+rental_cost = Label(query_tab4, text=rentText)
+rental_cost.grid(row=12, column=0, sticky=W)
 
 # Execute our window
 show_customer_data()
