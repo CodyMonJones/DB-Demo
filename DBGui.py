@@ -183,6 +183,19 @@ def add_rental():
     conn.commit()
     conn.close()
 
+#Query 5a treeview
+tree_view5a = ttk.Treeview(query_tab5, selectmode='browse')
+tree_view5a.grid(row=4, column=4, padx=20, pady=20)
+tree_view5a["columns"] = ("1", "2", "3")
+tree_view5a["show"] = 'headings'
+tree_view5a.column("1", width=100, anchor='w')
+tree_view5a.column("2", width=100, anchor='w')
+tree_view5a.column("3", width=200, anchor='w')
+
+tree_view5a.heading("1", text="Customer ID")
+tree_view5a.heading("2", text="Name")
+tree_view5a.heading("3", text="Remaining Balance")
+
 #setting treeview columns
 def submit_vehicle():
     try:
@@ -269,6 +282,186 @@ def show_vehicle_data():
     conn.close()
 
 #-----------------------------------------------------------------------------------------------------------------------
+def return_vehicle():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+
+    # TODO: Figure out if we need vid or description, idea is in the select, grab the vid and save it, then pass it through the pay function
+    # result = cur.execute("SELECT TotalAmount FROM customer, rental, vehicle WHERE customer.custid = rental.custid AND vehicle.vehicleid = rental.vehicleid AND Name = :name AND ReturnDate = :returnDate AND Description = :description",
+    #                    {
+    #                       'name': customer_name4.get(),
+    #                        'returnDate': return_date.get(),
+    #                        'description': vehicle_info.get()
+    #                    })
+
+    result = cur.execute("SELECT TotalAmount FROM CUSTOMER, RENTAL, VEHICLE WHERE customer.custid = rental.custid AND vehicle.vehicleid = rental.vehicleid AND Name = :name AND ReturnDate = :returnDate AND rental.VehicleID = :vid",
+                         {
+                             'name': customer_name4.get(),
+                             'returnDate': return_date.get(),
+                             'vid': vehicle_info.get()
+                         })
+
+    # gets the first result from the query, just in case, there are multiple
+    output = -1
+    for i in result:
+        if (output == -1):
+            output = i
+    # if output is still -1, that means there was no output
+    if (output == -1):
+        rental_cost.config(text="Invalid information")
+    else:
+        rental_cost.config(text=output)
+
+        practiceButton = Button(query_tab4, text='Pay', command=pay)
+        practiceButton.grid(row=13, column=0, )
+
+    conn.commit()
+    conn.close()
+
+
+def pay():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+    date = datetime.today().strftime('%Y-%m-%d')
+
+    cid = conn.execute('select custid from customer where name = :name',
+                       {
+                           'name': customer_name4.get()
+                       })
+
+    print(date, vehicle_info.get(), return_date.get())
+    conn.execute('UPDATE RENTAL SET PaymentDate = :date WHERE VehicleID = :vid AND ReturnDate = :returnDate',
+                 {
+                     'date': str(date),
+                     # 'id': id,
+                     'vid': vehicle_info.get(),
+                     'returnDate': return_date.get()
+                 })
+    conn.commit()
+
+    conn.execute('UPDATE RENTAL SET Returned = 1 WHERE VehicleID = :vid AND ReturnDate = :returnDate',
+                 {
+                     # 'id': id,
+                     'vid': vehicle_info.get(),
+                     'returnDate': return_date.get()
+                 })
+
+    conn.commit()
+
+    tree_4_result = conn.execute("SELECT * FROM RENTAL")
+    for rental in tree_4_result:
+        tree_view4.insert("", index="end", text= "", values=(rental[0], rental[1], rental[2], rental[3], rental[4], rental[5], rental[6], rental[7], rental[8], rental[9]))
+    conn.commit()             
+
+    customer_name4.delete(0, END)
+    customer_phone.delete(0, END)
+    return_date.delete(0, END)
+    vehicle_info.delete(0, END)
+    vehicle_make.delete(0, END)
+    vehicle_year.delete(0, END)
+
+    conn.commit()
+    conn.close()
+
+
+def customerBalance():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+
+    #if queryType == 0:
+    #rint('frist one')
+    output = conn.execute(
+        'SELECT CustomerID, CustomerName, SUM(RentalBalance) AS Balance FROM rentalInfo GROUP BY CustomerID ORDER BY Balance ASC')
+    #elif queryType == 2:
+    #   print('this one')
+    #   output = conn.execute('SELECT CustomerID, CustomerName, SUM(RentalBalance) FROM rentalInfo WHERE CustomerName = :name',
+    #   {
+    #       'name': search_name.get()
+    #   })
+
+    #global vehicle_count
+    #balance_count = 0
+
+    for i in tree_view5a.get_children():
+        tree_view5a.delete(i)
+
+    for cust_balance in output:
+        #print(cust_balance)
+
+        tree_view5a.insert("", index='end', text="", values=(
+            cust_balance[0], cust_balance[1], f"${cust_balance[2]}.00"))
+
+    conn.commit()
+    conn.close()
+
+
+def customerBalanceSearchName():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+
+    output = conn.execute('SELECT CustomerID, CustomerName, SUM(RentalBalance) AS Balance FROM rentalInfo WHERE CustomerName = :name ORDER BY Balance ASC',
+                          {
+                              'name': search_name.get()
+                          })
+
+    for i in tree_view5a.get_children():
+        tree_view5a.delete(i)
+
+    for cust_balance in output:
+        #print(cust_balance)
+
+        tree_view5a.insert("", index='end', text="", values=(
+            cust_balance[0], cust_balance[1], f"${cust_balance[2]}.00"))
+
+    search_name.delete(0, END)
+
+    conn.commit()
+    conn.close()
+
+
+def cusotmerBalanceSearchID():
+    try:
+        conn = sqlite3.connect(workingDB)
+    except Error as error:
+        print(error)
+
+    cur = conn.cursor()
+
+    output = conn.execute('SELECT CustomerID, CustomerName, SUM(RentalBalance) AS Balance FROM rentalInfo WHERE CustomerID = :id ORDER BY Balance ASC',
+                          {
+                              'id': search_id.get()
+                          })
+
+    for i in tree_view5a.get_children():
+        tree_view5a.delete(i)
+
+    for cust_balance in output:
+        #print(cust_balance)
+
+        tree_view5a.insert("", index='end', text="", values=(
+            cust_balance[0], cust_balance[1], f"${cust_balance[2]}.00"))
+
+    search_id.delete(0, END)
+
+    conn.commit()
+    conn.close()
+
 # Vehicle information to add to DB
 # query 2 entry boxes and buttons
 #-----------------------------------------------------------------------------------------------------------------------
@@ -402,6 +595,33 @@ numDayWeek_in.grid(row=23, column=0, sticky=W, pady=(0, 10))
 enterRental = Button(query_tab3, text="Submit Rental Request", command=add_rental)
 enterRental.grid(row=24, column=0, columnspan=2, padx=100, pady=10, sticky=W)
 #-----------------------------------------------------------------------------------------------------------------------
+#Query 5a
+search_id_label = Label(query_tab5, text='Customer ID')
+search_id_label.grid(row=0, column=0, sticky=W, padx=(10, 0))
+
+search_id = Entry(query_tab5, width=30)
+search_id.grid(row=1, column=0, sticky=W, padx=(10, 0))
+
+search_id_button = Button(query_tab5, text='Search by ID',
+                          command=cusotmerBalanceSearchID)
+search_id_button.grid(row=2, column=0, sticky=W, padx=(10, 0))
+
+
+search_name_label = Label(query_tab5, text='User name:')
+search_name_label.grid(row=0, column=1, sticky=W, padx=(10, 0))
+
+search_name = Entry(query_tab5, width=30)
+search_name.grid(row=1, column=1, padx=(10, 0))
+
+search_name_button = Button(
+query_tab5, text='Search by Name', command=customerBalanceSearchName)
+search_name_button.grid(row=2, column=1, sticky=W, padx=(10, 0))
+
+
+generate_customers_balance = Button(
+query_tab5, text='Find Customers', command=customerBalance)
+generate_customers_balance.grid(row=4, column=0, sticky=W)
+
 # Execute our window
 show_customer_data()
 show_vehicle_data()
