@@ -314,20 +314,20 @@ vehicle_info_label = Label(query_tab4, text='Vehicle id: ')
 vehicle_info_label.grid(row=4, column=0, sticky=W)
 
 vehicle_info = Entry(query_tab4, width=30)
-vehicle_info.grid(row=5, column=0, pady=(0, 10))
+vehicle_info.grid(row=5, column=0, pady=(0, 10), sticky=W)
 
 
 vehicle_make_label = Label(query_tab4, text='Make: ')
-vehicle_make_label.grid(row=4, column=1, sticky=W, padx=(10, 0))
+vehicle_make_label.grid(row=6, column=0, sticky=W)
 
 vehicle_make = Entry(query_tab4, width=30)
-vehicle_make.grid(row=5, column=1, pady=(0, 10), padx=(10, 0))
+vehicle_make.grid(row=7, column=0, pady=(0, 10), sticky=W)
 
 vehicle_year_label = Label(query_tab4, text='Year: ')
-vehicle_year_label.grid(row=4, column=2, sticky=W, padx=(10, 0))
+vehicle_year_label.grid(row=8, column=0, sticky=W)
 
 vehicle_year = Entry(query_tab4, width=30)
-vehicle_year.grid(row=5, column=2, pady=(0, 10), padx=(10, 0))
+vehicle_year.grid(row=9, column=0, pady=(0, 10), sticky=W)
 
 
 updateVehicle = Button(query_tab4, text="Return car", command=return_vehicle)
