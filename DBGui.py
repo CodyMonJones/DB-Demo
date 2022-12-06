@@ -85,12 +85,42 @@ tree_view3.heading("3", text="Year")
 tree_view3.heading("4", text="Weekly")
 tree_view3.heading("5", text="Daily")
 
+#Rental Treeview
+tree_view4 = ttk.Treeview(query_tab4, selectmode='browse')
+tree_view4.grid(row=14, column=0, padx=20, pady=20)
+tree_view4["columns"] = ("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+tree_view4["show"] = 'headings'
+tree_view4.column("1", width=70, anchor='w')
+tree_view4.column("2", width=100, anchor='w')
+tree_view4.column("3", width=100, anchor='w')
+tree_view4.column("4", width=100, anchor='w')
+tree_view4.column("5", width=60, anchor='w')
+tree_view4.column("6", width=60, anchor='w')
+tree_view4.column("7", width=100, anchor='w')
+tree_view4.column("8", width=100, anchor='w')
+tree_view4.column("9", width=100, anchor='w')
+tree_view4.column("10",width=60, anchor='w')
+
+
+#treeview headings
+tree_view4.heading("1", text="Customer ID")
+tree_view4.heading("2", text="Vehicle ID")
+tree_view4.heading("3", text="Start Date")
+tree_view4.heading("4", text="Order Date")
+tree_view4.heading("5", text="Rental Type")
+tree_view4.heading("6", text="Quantity")
+tree_view4.heading("7", text="Return Date")
+tree_view4.heading("8", text="Total Amount")
+tree_view4.heading("9", text="Payment Date")
+tree_view4.heading("10", text="Returned")
+
 startDate = "XXXX-XX-XX"
 endDate = "XXXX-XX-XX"
 type_User_input = 0
 category_User_input = 0
 today = datetime.today().strftime('%Y-%m-%d')
 total_amount = 0
+shortDiscription = ""
 
 format = '%Y-%m-%d'
 
@@ -166,7 +196,6 @@ def add_rental():
     else:
         tempNL = "NULL"
 
-    
     rental_records = cur.execute("INSERT INTO RENTAL VALUES (:custID, :vin, :startD, :orderD, :rentType, :quant, :returnD, :amount, :nowLater, 0)",
     {
         'custID'    : custID.get(),
@@ -243,7 +272,6 @@ def add_customer():
     conn.commit()
     conn.close()
 
-
 def show_customer_data():
     try:
         conn = sqlite3.connect(workingDB)
@@ -299,11 +327,11 @@ def return_vehicle():
     #                    })
 
     result = cur.execute("SELECT TotalAmount FROM CUSTOMER, RENTAL, VEHICLE WHERE customer.custid = rental.custid AND vehicle.vehicleid = rental.vehicleid AND Name = :name AND ReturnDate = :returnDate AND rental.VehicleID = :vid",
-                         {
-                             'name': customer_name4.get(),
-                             'returnDate': return_date.get(),
-                             'vid': vehicle_info.get()
-                         })
+    {
+        'name': customer_name4.get(),
+        'returnDate': return_date.get(),
+        'vid': vehicle_info.get()
+    })
 
     # gets the first result from the query, just in case, there are multiple
     output = -1
@@ -415,10 +443,16 @@ def customerBalanceSearchName():
 
     cur = conn.cursor()
 
-    output = conn.execute('SELECT CustomerID, CustomerName, SUM(RentalBalance) AS Balance FROM rentalInfo WHERE CustomerName = :name ORDER BY Balance ASC',
-                          {
-                              'name': search_name.get()
-                          })
+    shortDescription = search_name.get() + "%"
+
+    output = conn.execute("""
+    SELECT CustomerID, CustomerName, SUM(RentalBalance) AS Balance 
+    FROM rentalInfo 
+    WHERE CustomerName LIKE :name 
+    ORDER BY Balance ASC""",
+    {
+        'name': shortDescription
+    })
 
     for i in tree_view5a.get_children():
         tree_view5a.delete(i)
@@ -444,9 +478,9 @@ def cusotmerBalanceSearchID():
     cur = conn.cursor()
 
     output = conn.execute('SELECT CustomerID, CustomerName, SUM(RentalBalance) AS Balance FROM rentalInfo WHERE CustomerID = :id ORDER BY Balance ASC',
-                          {
-                              'id': search_id.get()
-                          })
+    {
+        'id': search_id.get()
+    })
 
     for i in tree_view5a.get_children():
         tree_view5a.delete(i)
@@ -594,6 +628,52 @@ numDayWeek_in.grid(row=23, column=0, sticky=W, pady=(0, 10))
 
 enterRental = Button(query_tab3, text="Submit Rental Request", command=add_rental)
 enterRental.grid(row=24, column=0, columnspan=2, padx=100, pady=10, sticky=W)
+#QUERY 4 BOXES
+cust_name4_label = Label(query_tab4, text='Name:')
+cust_name4_label.grid(row=0, column=0, sticky=W)
+
+customer_name4 = Entry(query_tab4, width=30)
+customer_name4.grid(row=1, column=0, pady=(0, 10))
+
+
+return_date_label = Label(query_tab4, text='Return date (YYYY-MM-DD):')
+return_date_label.grid(row=2, column=0, sticky=W)
+
+return_date = Entry(query_tab4, width=30)
+return_date.grid(row=3, column=0, pady=(0, 10))
+
+
+#vehicle_info_label = Label(query_tab4, text='Vehicle name: ')
+vehicle_info_label = Label(query_tab4, text='Vehicle id: ')
+vehicle_info_label.grid(row=4, column=0, sticky=W)
+
+vehicle_info = Entry(query_tab4, width=30)
+vehicle_info.grid(row=5, column=0, pady=(0, 10), sticky=W)
+
+
+vehicle_make_label = Label(query_tab4, text='Make: ')
+vehicle_make_label.grid(row=6, column=0, sticky=W)
+
+vehicle_make = Entry(query_tab4, width=30)
+vehicle_make.grid(row=7, column=0, pady=(0, 10), sticky=W)
+
+vehicle_year_label = Label(query_tab4, text='Year: ')
+vehicle_year_label.grid(row=8, column=0, sticky=W)
+
+vehicle_year = Entry(query_tab4, width=30)
+vehicle_year.grid(row=9, column=0, pady=(0, 10), sticky=W)
+
+
+updateVehicle = Button(query_tab4, text="Return car", command=return_vehicle)
+updateVehicle.grid(row=10, column=0, columnspan=2, padx=100, pady=10, sticky=W)
+
+
+rentText = ""
+rental_cost_label = Label(query_tab4, text='Rental cost: ')
+rental_cost_label.grid(row=11, column=0, sticky=W)
+
+rental_cost = Label(query_tab4, text=rentText)
+rental_cost.grid(row=12, column=0, sticky=W)
 #-----------------------------------------------------------------------------------------------------------------------
 #Query 5a
 search_id_label = Label(query_tab5, text='Customer ID')
